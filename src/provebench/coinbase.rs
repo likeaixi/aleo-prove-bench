@@ -4,7 +4,7 @@ use rand::{thread_rng, RngCore};
 use snarkvm::{
     algorithms::polycommit::kzg10::UniversalParams,
     curves::bls12_377::Bls12_377,
-    prelude::{Address, CanonicalDeserialize, CoinbasePuzzle, EpochChallenge, PrivateKey, PuzzleConfig, Testnet3},
+    prelude::{Address, CanonicalDeserialize, CoinbasePuzzle , EpochChallenge, PrivateKey, PuzzleConfig, Testnet3},
     utilities::serialize::*,
 };
 use std::{fs::File, io::Read, time::Duration};
@@ -13,13 +13,17 @@ type CoinbasePuzzleInst = CoinbasePuzzle<Testnet3>;
 // type ProvingKeyInst = CoinbaseProvingKey<Testnet3>;
 
 fn setup_prover(degree: u32) -> (CoinbasePuzzleInst, u32) {
-    let mut file = File::open("./universal.srs").expect("need universal20.srs file");
-    let mut srs = Vec::new();
-    file.read_to_end(&mut srs).expect("need to read the whole file");
+    // let mut file = File::open("./universal.srs").expect("need universal20.srs file");
+    // let mut srs = Vec::new();
+    // file.read_to_end(&mut srs).expect("need to read the whole file");
+    //
+    // let universal_srs: UniversalParams<Bls12_377> =
+    //     CanonicalDeserialize::deserialize_with_mode(&*srs, Compress::No, Validate::No).expect("Failed to init universal SRS");
+    // let universal_srs = CoinbasePuzzleInst::setup(max_config).unwrap();
 
-    let universal_srs: UniversalParams<Bls12_377> =
-        CanonicalDeserialize::deserialize_with_mode(&*srs, Compress::No, Validate::No).expect("Failed to init universal SRS");
-    // let universal_srs = CoinbasePuzzleInst::setup(max_config, &mut thread_rng()).unwrap();
+    let max_degree = 1 << 15;
+    let max_config = PuzzleConfig { degree: max_degree };
+    let universal_srs = CoinbasePuzzleInst::setup(max_config).unwrap();
 
     print_title_info("Waiting", "Prove Setup, trim srs to prove key");
 
@@ -37,10 +41,10 @@ pub fn prove_by_degree(prover: Box<CoinbasePuzzleInst>, degree: u32, min_elapse:
             let challenge: EpochChallenge<Testnet3> = EpochChallenge::new(rng.next_u32(), Default::default(), degree).unwrap();
             let address = Address::try_from(PrivateKey::new(rng).unwrap()).unwrap();
             let nonce = rng.next_u64();
-            prover.prove(&challenge, address, nonce).unwrap();
+            prover.prove(&challenge, address, nonce, None).unwrap();
         });
     })
-    .unwrap();
+        .unwrap();
 
     print_result(&format!("{min_elapse}min:"), result);
 }

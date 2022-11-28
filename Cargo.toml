@@ -15,6 +15,8 @@ once_cell = "1.15.0"
 rand = "0.8"
 sysinfo = "0.26.4"
 
+snarkvm-synthesizer = { git = "https://github.com/AleoHQ/snarkVM.git", version = "0.9.8", features = ["setup"] }
+
 [dependencies.aleo-std]
 version = "0.1.14"
 optional = true
@@ -23,7 +25,8 @@ features = [ "cpu", "storage", "time", "timed" ]
 
 [dependencies.snarkvm]
 git = "https://github.com/AleoHQ/snarkVM.git"
-branch = "feat/new-posw-prover"
+#branch = "feat/new-posw-prover"
+version = "0.9.8"
 features = [
     "cuda",
     "algorithms",
@@ -32,4 +35,7 @@ features = [
     "r1cs",
     "utilities",
     "parallel",
+    "synthesizer",
 ]
+
+default = ["setup"]
